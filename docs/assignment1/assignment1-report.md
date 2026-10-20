@@ -343,7 +343,7 @@ Organization và repository là không gian làm việc của dự án. GitHub P
 | Assignment 1 | Set up public submission entry point | Toan | Todo |
 | Assignment 1 | Conduct target-user task tests | Chưa phân công | In progress |
 | Assignment 1 | Hoàn thiện report và architecture | Toan | Done |
-| Assignment 1 | Cập nhật GitHub Project, README và các việc còn lại | Chưa phân công | Todo |
+| Assignment 1 | Cập nhật GitHub Project, README và các việc còn lại | Toan | Todo |
 | Assignment 2 | Create Figma flows based on US-01 to US-06 | Chưa phân công | Backlog |
 | Implementation | Implement lesson, practice and progress features | Chưa phân công | Backlog |
 | Implementation | Test audio permissions and recording fallback | Chưa phân công | Backlog |
@@ -354,15 +354,15 @@ Organization và repository là không gian làm việc của dự án. GitHub P
 
 ## 13. Submission Checklist
 
-- [ ] Có public submission entry point và link đã được kiểm tra quyền truy cập.
+- [x] Có public submission entry point và link đã được kiểm tra quyền truy cập.
 - [ ] Every team member has joined the GitHub Organization.
-- [ ] GitHub Project is created with real tasks, owners, status and milestones.
+- [x] GitHub Project is created with real tasks, owners, status and milestones.
 - [ ] The final Wiki has a clear navigation page linking to every section above.
 - [ ] The recruitment channel and participant selection are documented.
 - [ ] Screening/branching is corrected before collecting additional responses.
 - [ ] At least 5–6 target-user task tests or interviews are completed and summarized.
-- [ ] Links to research artifacts and alternatives remain accessible.
-- [ ] Các link research evidence đã được kiểm tra quyền truy cập.
+- [x] Links to research artifacts and alternatives remain accessible.
+- [x] Các link research evidence đã được kiểm tra quyền truy cập.
 - [x] Project board đã được mở Public và có link trực tiếp trong phần GitHub setup.
 - [ ] Public project entry point liên kết tới Wiki, Organization và Project.
 

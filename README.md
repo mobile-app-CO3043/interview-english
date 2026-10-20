@@ -9,10 +9,8 @@ Các tài liệu và liên kết chính của dự án được tập trung tạ
 - [Assignment 1 Report](./docs/assignment1/assignment1-report.md)
 - [Project Architecture](./docs/architecture.md)
 - [GitHub Organization](https://github.com/mobile-app-CO3043)
-- [GitHub Projects](https://github.com/orgs/mobile-app-CO3043/projects)
+- [GitHub Projects](https://github.com/orgs/mobile-app-CO3043/projects/1/views/2)
 - [Research evidence](./docs/assignment1/)
-
-Sau khi tạo board Assignment 1, thay link **GitHub Projects** ở trên bằng link trực tiếp tới board đó.
 
 ## Đã triển khai
 
@@ -27,7 +25,6 @@ Sau khi tạo board Assignment 1, thay link **GitHub Projects** ở trên bằng
 ## Chạy app
 
 ```powershell
-cd 'D:\261\Mobile App\tu-vung-thuc-te'
 npm start
 ```
 
