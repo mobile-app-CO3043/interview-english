@@ -6,10 +6,6 @@ Interview English là ứng dụng di động được xây dựng bằng Expo v
 hỗ trợ sinh viên ngành Công nghệ thông tin luyện trả lời phỏng vấn tiếng Anh cho
 vị trí Software Intern.
 
-MVP hiện tại là ứng dụng chạy chủ yếu trên thiết bị và lưu dữ liệu cục bộ. Ứng
-dụng chưa sử dụng máy chủ backend, hệ thống đăng nhập, cơ sở dữ liệu đám mây,
-dịch vụ chuyển giọng nói thành văn bản hoặc dịch vụ AI chấm điểm.
-
 ## 2. Sơ đồ kiến trúc
 
 ```mermaid
@@ -44,28 +40,17 @@ flowchart TD
 ## 4. Luồng dữ liệu chính
 
 1. Ứng dụng tải tiến độ đã lưu từ `AsyncStorage`.
-2. Người dùng chọn một bài học và câu hỏi phỏng vấn.
+2. người dùng chọn một bài học và câu hỏi phỏng vấn.
 3. `App.tsx` truyền câu hỏi đã chọn sang `PracticeScreen.tsx`.
-4. Người dùng đọc hoặc nghe câu hỏi rồi ghi âm câu trả lời.
+4. người dùng đọc hoặc nghe câu hỏi rồi ghi âm câu trả lời.
 5. `usePracticeAudio.ts` điều khiển ghi âm và phát lại thông qua các API của Expo.
-6. Người dùng xem cụm từ và câu trả lời mẫu; `expo-speech` đọc nội dung nếu cần.
-7. Người dùng tự đánh dấu câu là `spoke` hoặc `review`.
-8. Tiến độ được lưu cục bộ bằng `AsyncStorage`.
+6. người dùng xem cụm từ và câu trả lời mẫu; `expo-speech` đọc nội dung nếu cần.
+7. người dùng tự đánh dấu câu là `spoke` hoặc `review`.
+8. tiến độ được lưu cục bộ bằng `AsyncStorage`.
 
-## 5. Công nghệ sử dụng
 
-- Expo và React Native
-- TypeScript và React Hooks
-- AsyncStorage
-- expo-audio, expo-speech và expo-file-system
-- Jest và React Native Testing Library
-
-## 6. Giới hạn hiện tại và hướng phát triển
+## 5. Giới hạn hiện tại và hướng phát triển
 
 MVP chưa có backend, đăng nhập, đồng bộ dữ liệu đám mây, chuyển giọng nói thành
 văn bản hoặc đánh giá phát âm bằng AI. Bản ghi âm chỉ được lưu tạm thời trên thiết
 bị và không được tải lên máy chủ.
-
-Trong tương lai, ứng dụng có thể bổ sung tài khoản người dùng, đồng bộ tiến độ,
-chuyển giọng nói thành văn bản và phản hồi AI sau khi luồng học tập cốt lõi đã
-được kiểm chứng.
