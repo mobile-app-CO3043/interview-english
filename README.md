@@ -6,11 +6,11 @@ MVP luyện tiếng Anh phỏng vấn cho sinh viên CNTT ứng tuyển **Softwa
 
 Các tài liệu và liên kết chính của dự án được tập trung tại đây để thuận tiện đánh giá:
 
-- [Assignment 1 Report](./doc/assignment1/assignment1-report.md)
+- [Assignment 1 Report](./docs/assignment1/assignment1-report.md)
 - [Project Architecture](./docs/architecture.md)
 - [GitHub Organization](https://github.com/mobile-app-CO3043)
 - [GitHub Projects](https://github.com/orgs/mobile-app-CO3043/projects)
-- [Research evidence](./doc/assignment1/)
+- [Research evidence](./docs/assignment1/)
 
 Sau khi tạo board Assignment 1, thay link **GitHub Projects** ở trên bằng link trực tiếp tới board đó.
 
