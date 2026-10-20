@@ -1,66 +1,71 @@
-# Interview English — Project Architecture
+# Interview English — Kiến trúc dự án
 
-## 1. Overview
+## 1. Tổng quan
 
-Interview English is an Expo React Native mobile application that helps
-Computer Science students practise English answers for Software Intern interviews.
+Interview English là ứng dụng di động được xây dựng bằng Expo và React Native,
+hỗ trợ sinh viên ngành Công nghệ thông tin luyện trả lời phỏng vấn tiếng Anh cho
+vị trí Software Intern.
 
-The current MVP is a local-first mobile application. It does not use a backend,
-login system, cloud database, speech-to-text service, or AI scoring service.
+MVP hiện tại là ứng dụng chạy chủ yếu trên thiết bị và lưu dữ liệu cục bộ. Ứng
+dụng chưa sử dụng máy chủ backend, hệ thống đăng nhập, cơ sở dữ liệu đám mây,
+dịch vụ chuyển giọng nói thành văn bản hoặc dịch vụ AI chấm điểm.
 
-## 2. Architecture
+## 2. Sơ đồ kiến trúc
 
 ```mermaid
 flowchart TD
-    U[User] --> UI[React Native UI]
+    U[Người dùng] --> UI[Giao diện React Native]
     UI --> APP[App.tsx]
     UI --> PRACTICE[PracticeScreen.tsx]
-    APP --> DATA[Static lesson and question data]
-    APP --> STATE[React state and progress logic]
+    APP --> DATA[Dữ liệu bài học và câu hỏi tĩnh]
+    APP --> STATE[Trạng thái React và xử lý tiến độ]
     PRACTICE --> AUDIO[usePracticeAudio.ts]
     STATE --> STORAGE[AsyncStorage]
     AUDIO --> REC[expo-audio]
     AUDIO --> SPEECH[expo-speech]
     AUDIO --> FILES[expo-file-system]
-    REC --> MIC[Device microphone and speaker]
+    REC --> MIC[Microphone và loa thiết bị]
     SPEECH --> MIC
 ```
 
-## 3. Main components
+## 3. Các thành phần chính
 
-| Component | Responsibility |
+| Thành phần | Trách nhiệm |
 |---|---|
-| `App.tsx` | Displays lessons, stores progress and controls navigation |
-| `src/PracticeScreen.tsx` | Displays questions, hints, recording and playback controls |
-| `src/usePracticeAudio.ts` | Handles microphone permission, recording, playback and cleanup |
-| `AsyncStorage` | Saves the learner's local practice status |
-| `expo-audio` | Records and plays audio |
-| `expo-speech` | Reads questions and sample answers aloud |
-| `expo-file-system` | Handles temporary recording files |
-| `src/__tests__/PracticeAudio.test.tsx` | Tests the audio practice logic |
+| `App.tsx` | Hiển thị danh sách bài học, lưu tiến độ và điều hướng giữa các màn hình |
+| `src/PracticeScreen.tsx` | Hiển thị câu hỏi, gợi ý, nút ghi âm và phát lại |
+| `src/usePracticeAudio.ts` | Xử lý quyền microphone, ghi âm, phát lại và dọn file tạm |
+| `AsyncStorage` | Lưu trạng thái luyện tập trên thiết bị |
+| `expo-audio` | Ghi và phát âm thanh |
+| `expo-speech` | Đọc câu hỏi và câu trả lời mẫu bằng giọng tổng hợp |
+| `expo-file-system` | Quản lý file ghi âm tạm thời |
+| `src/__tests__/PracticeAudio.test.tsx` | Kiểm thử logic ghi âm và phát âm thanh |
 
-## 4. Main data flow
+## 4. Luồng dữ liệu chính
 
-1. The app loads saved progress from `AsyncStorage`.
-2. The learner selects a lesson and question.
-3. `App.tsx` passes the selected question to `PracticeScreen.tsx`.
-4. The learner reads or listens to the question and records an answer.
-5. `usePracticeAudio.ts` manages recording and playback through Expo audio APIs.
-6. The learner views phrases and a sample answer using `expo-speech`.
-7. The learner marks the question as `spoke` or `review`.
-8. The progress is saved locally with `AsyncStorage`.
+1. Ứng dụng tải tiến độ đã lưu từ `AsyncStorage`.
+2. Người dùng chọn một bài học và câu hỏi phỏng vấn.
+3. `App.tsx` truyền câu hỏi đã chọn sang `PracticeScreen.tsx`.
+4. Người dùng đọc hoặc nghe câu hỏi rồi ghi âm câu trả lời.
+5. `usePracticeAudio.ts` điều khiển ghi âm và phát lại thông qua các API của Expo.
+6. Người dùng xem cụm từ và câu trả lời mẫu; `expo-speech` đọc nội dung nếu cần.
+7. Người dùng tự đánh dấu câu là `spoke` hoặc `review`.
+8. Tiến độ được lưu cục bộ bằng `AsyncStorage`.
 
-## 5. Technology stack
+## 5. Công nghệ sử dụng
 
-- Expo and React Native
-- TypeScript and React Hooks
+- Expo và React Native
+- TypeScript và React Hooks
 - AsyncStorage
-- expo-audio, expo-speech and expo-file-system
-- Jest and React Native Testing Library
+- expo-audio, expo-speech và expo-file-system
+- Jest và React Native Testing Library
 
-## 6. Current limitations and future work
+## 6. Giới hạn hiện tại và hướng phát triển
 
-The MVP has no backend, authentication, cloud synchronisation, speech-to-text,
-or AI pronunciation evaluation. Recordings are temporary and are not uploaded.
-Future versions may add user accounts, cloud progress, speech-to-text and AI
-feedback after the core learning flow has been validated.
+MVP chưa có backend, đăng nhập, đồng bộ dữ liệu đám mây, chuyển giọng nói thành
+văn bản hoặc đánh giá phát âm bằng AI. Bản ghi âm chỉ được lưu tạm thời trên thiết
+bị và không được tải lên máy chủ.
+
+Trong tương lai, ứng dụng có thể bổ sung tài khoản người dùng, đồng bộ tiến độ,
+chuyển giọng nói thành văn bản và phản hồi AI sau khi luồng học tập cốt lõi đã
+được kiểm chứng.
