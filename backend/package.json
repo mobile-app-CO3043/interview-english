@@ -1,0 +1,31 @@
+{
+  "name": "interview-english-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NestJS API for Interview English with Lessons and Questions collections",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "start:dev": "npm run build && npm start",
+    "test": "npm run build && node --test test/api.test.cjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "overrides": {
+    "multer": "^2.5.0",
+    "js-yaml": "^5.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "~5.9.3"
+  }
+}

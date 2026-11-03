@@ -1,0 +1,120 @@
+{
+  "lessons": [
+    {
+      "id": "intro",
+      "number": "BÀI 01",
+      "title": "Giới thiệu bản thân",
+      "subtitle": "Bản thân, mục tiêu và điểm mạnh",
+      "icon": "👋",
+      "color": "#4F46E5"
+    },
+    {
+      "id": "projects",
+      "number": "BÀI 02",
+      "title": "Dự án và kỹ năng kỹ thuật",
+      "subtitle": "Kể về sản phẩm bạn đã xây dựng",
+      "icon": "💻",
+      "color": "#0EA5E9"
+    },
+    {
+      "id": "teamwork",
+      "number": "BÀI 03",
+      "title": "Teamwork và giải quyết vấn đề",
+      "subtitle": "Phối hợp và xử lý khó khăn",
+      "icon": "🤝",
+      "color": "#059669"
+    }
+  ],
+  "questions": [
+    {
+      "id": "yourself",
+      "question": "Tell me about yourself.",
+      "vietnamese": "Hãy giới thiệu về bản thân bạn.",
+      "phrase": "I am a final-year Computer Science student.",
+      "meaning": "Tôi là sinh viên năm cuối ngành Khoa học Máy tính.",
+      "answer": "I am a final-year Computer Science student. I am interested in web development, and I have built several small projects using React.",
+      "translation": "Tôi là sinh viên năm cuối ngành Khoa học Máy tính. Tôi quan tâm đến phát triển web và đã làm một số dự án nhỏ bằng React.",
+      "lessonId": "intro"
+    },
+    {
+      "id": "why-role",
+      "question": "Why are you applying for this Software Intern position?",
+      "vietnamese": "Vì sao bạn ứng tuyển vị trí thực tập sinh lập trình này?",
+      "phrase": "I am interested in learning from an experienced team.",
+      "meaning": "Tôi muốn học hỏi từ một đội ngũ có kinh nghiệm.",
+      "answer": "I am applying because I want to gain practical experience. I am interested in learning from an experienced team and contributing to real products.",
+      "translation": "Tôi ứng tuyển vì muốn có kinh nghiệm thực tế. Tôi muốn học hỏi từ một đội ngũ có kinh nghiệm và đóng góp vào sản phẩm thật.",
+      "lessonId": "intro"
+    },
+    {
+      "id": "strength",
+      "question": "What is one of your strengths?",
+      "vietnamese": "Một điểm mạnh của bạn là gì?",
+      "phrase": "My strength is solving problems step by step.",
+      "meaning": "Điểm mạnh của tôi là giải quyết vấn đề từng bước.",
+      "answer": "My strength is solving problems step by step. When I face a bug, I first understand the issue, then test possible solutions carefully.",
+      "translation": "Điểm mạnh của tôi là giải quyết vấn đề từng bước. Khi gặp lỗi, tôi tìm hiểu nguyên nhân trước rồi cẩn thận thử các giải pháp.",
+      "lessonId": "intro"
+    },
+    {
+      "id": "project",
+      "question": "Tell me about a project you have worked on.",
+      "vietnamese": "Hãy kể về một dự án bạn từng làm.",
+      "phrase": "I built a web application using React and Firebase.",
+      "meaning": "Tôi đã xây dựng một ứng dụng web bằng React và Firebase.",
+      "answer": "I built a web application using React and Firebase. The app helps students track their study tasks and deadlines.",
+      "translation": "Tôi đã xây dựng một ứng dụng web bằng React và Firebase. Ứng dụng giúp sinh viên theo dõi công việc học tập và hạn chót.",
+      "lessonId": "projects"
+    },
+    {
+      "id": "role",
+      "question": "What was your role in that project?",
+      "vietnamese": "Vai trò của bạn trong dự án đó là gì?",
+      "phrase": "I was responsible for the front-end interface.",
+      "meaning": "Tôi chịu trách nhiệm cho giao diện front-end.",
+      "answer": "I was responsible for the front-end interface. I designed the screens, connected them to the API, and tested the main user flows.",
+      "translation": "Tôi chịu trách nhiệm cho giao diện front-end. Tôi thiết kế màn hình, kết nối với API và kiểm thử các luồng người dùng chính.",
+      "lessonId": "projects"
+    },
+    {
+      "id": "skills",
+      "question": "What technologies are you comfortable using?",
+      "vietnamese": "Bạn tự tin sử dụng những công nghệ nào?",
+      "phrase": "I am comfortable using Java, JavaScript, and Git.",
+      "meaning": "Tôi tự tin sử dụng Java, JavaScript và Git.",
+      "answer": "I am comfortable using Java, JavaScript, and Git. I am also learning React Native because I want to build mobile applications.",
+      "translation": "Tôi tự tin sử dụng Java, JavaScript và Git. Tôi cũng đang học React Native vì muốn xây dựng ứng dụng di động.",
+      "lessonId": "projects"
+    },
+    {
+      "id": "teamwork",
+      "question": "Tell me about a time you worked in a team.",
+      "vietnamese": "Hãy kể về một lần bạn làm việc nhóm.",
+      "phrase": "I worked with a team of three to build a mobile app.",
+      "meaning": "Tôi đã làm việc với một nhóm ba người để xây dựng ứng dụng di động.",
+      "answer": "I worked with a team of three to build a mobile app. We divided the tasks, shared updates every week, and helped each other when we had problems.",
+      "translation": "Tôi đã làm việc với nhóm ba người để xây dựng ứng dụng di động. Chúng tôi chia việc, cập nhật hằng tuần và hỗ trợ nhau khi gặp khó khăn.",
+      "lessonId": "teamwork"
+    },
+    {
+      "id": "challenge",
+      "question": "Tell me about a challenge you faced in a project.",
+      "vietnamese": "Hãy kể về một khó khăn bạn gặp trong dự án.",
+      "phrase": "We had a problem with the database connection.",
+      "meaning": "Chúng tôi gặp vấn đề với kết nối cơ sở dữ liệu.",
+      "answer": "We had a problem with the database connection. I read the documentation, tested the configuration, and solved the issue with my teammate.",
+      "translation": "Chúng tôi gặp vấn đề với kết nối cơ sở dữ liệu. Tôi đọc tài liệu, kiểm tra cấu hình và cùng đồng đội giải quyết vấn đề.",
+      "lessonId": "teamwork"
+    },
+    {
+      "id": "deadline",
+      "question": "How do you work when you have a deadline?",
+      "vietnamese": "Bạn làm việc thế nào khi có hạn chót?",
+      "phrase": "I break the work into smaller tasks and set priorities.",
+      "meaning": "Tôi chia công việc thành những nhiệm vụ nhỏ và đặt thứ tự ưu tiên.",
+      "answer": "When I have a deadline, I break the work into smaller tasks and set priorities. I focus on the most important features first and communicate early if I need support.",
+      "translation": "Khi có hạn chót, tôi chia công việc thành nhiệm vụ nhỏ và đặt thứ tự ưu tiên. Tôi làm các chức năng quan trọng trước và trao đổi sớm nếu cần hỗ trợ.",
+      "lessonId": "teamwork"
+    }
+  ]
+}
