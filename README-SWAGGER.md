@@ -4,20 +4,20 @@ Ngày thực hiện: 03/11/2026.
 
 ## 1. Link đã mở công khai để thử ngay
 
-**Swagger Docs:** https://essex-lucia-enquiry-temporal.trycloudflare.com/docs
+**Swagger Docs để nộp bài:** https://interview-english.onrender.com/docs
 
-**OpenAPI JSON:** https://essex-lucia-enquiry-temporal.trycloudflare.com/openapi.json
+**OpenAPI JSON:** https://interview-english.onrender.com/openapi.json
 
-Đây là URL tạm thời qua Cloudflare Tunnel, đã kiểm tra phản hồi từ bên ngoài. Để dùng link này khi demo hoặc chấm bài, máy hiện tại phải bật, có mạng và hai tiến trình backend cùng tunnel phải còn chạy. Khi dừng tunnel hoặc khởi động lại tunnel, URL cũ không được bảo đảm hoạt động; lần khởi động mới sẽ có URL mới. Không nên dùng URL tạm làm link nộp lâu dài nếu thầy có thể chấm vào lúc khác. Mục 7 hướng dẫn triển khai hosting để lấy URL không phụ thuộc máy này.
+Backend đã triển khai thành công trên Render bằng Docker từ repository của nhóm. Link trên không phụ thuộc máy cá nhân và có thể thử API trực tiếp trong Swagger. Render Free có thể ngủ khi không có truy cập; lần mở lại có thể cần chờ khoảng một phút. Khả năng hoạt động phụ thuộc service và tài khoản Render, không được bảo đảm vĩnh viễn.
 
-Mình đã khởi động backend và tunnel ở chế độ nền. Không cần chạy lại chỉ để mở link trên. Thông tin tiến trình và log nằm ngoài repository tại:
+Trước khi deploy Render, dự án từng dùng Cloudflare Tunnel để thử tạm. Tunnel không cần thiết cho URL Render. Các file log của lần thử cũ nằm ngoài repository tại:
 
 - `D:\261\Mobile App\tmp\interview-api-processes.json`
 - `D:\261\Mobile App\tmp\interview-api.out.log`
 - `D:\261\Mobile App\tmp\interview-api.err.log`
 - `D:\261\Mobile App\tmp\interview-tunnel.err.log`
 
-Nếu đã đăng link tạm lên hệ thống môn học, cần thay bằng URL hosting sau khi triển khai thành công.
+Nếu từng nộp link `trycloudflare.com`, hãy thay bằng URL Render `/docs` ở trên.
 
 ## 2. Đối chiếu yêu cầu trên lớp
 
@@ -30,7 +30,7 @@ Backend này dùng NestJS và TypeScript, chia thành hai nhóm trong Swagger:
 
 Đây là API thực sự chạy được, không phải chỉ có bản thiết kế OpenAPI. Swagger UI phục vụ trực tiếp từ backend, hỗ trợ **Try it out → Execute** trên cùng máy chủ. Có 11 thao tác API, chia thành đúng hai nhóm nghiệp vụ.
 
-App Expo hiện vẫn dùng dữ liệu nội bộ và AsyncStorage. Backend được bổ sung riêng cho bài tập; chưa sửa app để gọi backend, chưa có tài khoản, đồng bộ tiến độ hay tải bản ghi âm. Dữ liệu mẫu gồm đúng 3 bài và 9 câu từ `App.tsx` tại thời điểm tạo backend.
+App Expo đã gọi API đọc bài học và câu hỏi qua `src/api.ts`. Nội dung được lưu trên điện thoại để dự phòng khi API lỗi; tiến độ tự đánh giá vẫn lưu riêng bằng AsyncStorage, chưa đồng bộ lên server. Chưa có tài khoản hoặc tải bản ghi âm. Dữ liệu mẫu gồm đúng 3 bài và 9 câu từ `App.tsx` tại thời điểm tạo backend. Xem [hướng dẫn kết nối và cache](./docs/api-integration.md).
 
 ## 3. Danh sách API
 
@@ -141,7 +141,7 @@ Kết quả kiểm tra ngày 03/11/2026: backend build thành công; **36 kiểm
 Có thể thử trực tiếp URL công khai bằng:
 
 ```powershell
-node test/public-smoke.cjs https://essex-lucia-enquiry-temporal.trycloudflare.com
+node test/public-smoke.cjs https://interview-english.onrender.com
 ```
 
 Script public tạo bản ghi thử có ID riêng, kiểm tra đọc/sửa/xóa rồi dọn các bản ghi đó.
@@ -152,7 +152,7 @@ Backend lưu vào `backend/data/database.json`. Lần đầu chạy, nó khởi 
 
 ## 7. Lấy URL hosting ổn định hơn để nộp
 
-Phần này cần tài khoản Render và quyền truy cập repository GitHub của nhóm; chưa được triển khai vào tài khoản hosting. Đã chuẩn bị Dockerfile và cấu hình Render. Không cần dùng gói trả phí chỉ để thử bài tập.
+Service hiện tại đã deploy trên Render bằng Docker và có URL ở mục 1. Các bước dưới là cách tạo lại service bằng Node runtime nếu cần; cũng có thể dùng Dockerfile trong `backend`. Không tạo thêm service chỉ để sử dụng link đang chạy.
 
 1. Đưa các file mới lên repository `mobile-app-CO3043/interview-english` bằng quy trình Git của nhóm. Không đưa `node_modules`, `.venv`, `data` hoặc log lên Git. Nếu dùng Git trong VS Code, chọn đúng các file backend, `README-SWAGGER.md` và thay đổi `tsconfig.json` để commit, không vô tình gộp các thay đổi giao diện chưa muốn nộp.
 2. Đăng nhập https://dashboard.render.com bằng tài khoản của nhóm.
@@ -196,7 +196,7 @@ backend/
   start-public.ps1       Mở tunnel khi backend đã chạy
 ```
 
-Chưa có đăng nhập, phân quyền quản trị, database production, tiến độ của từng người dùng hoặc kết nối app Expo với API. Đây là phạm vi backend demo cho hai API collections trong bài tập, không mô tả những phần chưa làm là đã hoàn thành.
+App Expo đã kết nối các API đọc nội dung. Chưa có đăng nhập, phân quyền quản trị, database production, đồng bộ tiến độ từng người dùng hoặc ghi dữ liệu quản trị từ app. Hai API collections vẫn có CRUD để thử trên Swagger. Môi trường demo công khai chỉ dùng dữ liệu thử nghiệm.
 
 ## 9. Tài liệu chính thức đã tham khảo
 

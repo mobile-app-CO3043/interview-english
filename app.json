@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "tu-vung-thuc-te",
-    "slug": "tu-vung-thuc-te",
+    "name": "Interview English",
+    "slug": "interview-english-software-intern",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,6 +20,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Interview English cần dùng micro để bạn ghi âm và nghe lại câu trả lời của mình.",
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-status-bar",
+      "expo-asset"
+    ]
   }
 }

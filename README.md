@@ -11,6 +11,9 @@ Các tài liệu và liên kết chính của dự án được tập trung tạ
 - [GitHub Organization](https://github.com/mobile-app-CO3043)
 - [GitHub Projects](https://github.com/orgs/mobile-app-CO3043/projects/1/views/2)
 - [Research evidence](./docs/assignment1/)
+- [Swagger Docs đang chạy](https://interview-english.onrender.com/docs)
+- [Backend và triển khai Render](./README-SWAGGER.md)
+- [Kết nối Expo với API và bản lưu bài học](./docs/api-integration.md)
 
 ## Đã triển khai
 
@@ -21,10 +24,13 @@ Các tài liệu và liên kết chính của dự án được tập trung tạ
 - Đọc câu hỏi, cụm từ và câu trả lời bằng giọng tổng hợp tiếng Anh (`expo-speech`), không phải bản thu của giáo viên.
 - Dừng âm thanh khi rời câu hoặc chuyển app ra nền. Từ chối quyền micro vẫn có thể xem/nghe mẫu và tự học.
 - Lưu tiến độ trên điện thoại bằng AsyncStorage.
+- App lấy bài học và câu hỏi từ backend NestJS trên Render, ghép câu hỏi theo `lessonId`.
+- Tải API thành công thì lưu nội dung vào AsyncStorage. Khi API lỗi, dùng bản lưu hợp lệ; nếu chưa có bản lưu thì dùng nội dung có sẵn trong code.
 
 ## Chạy app
 
 ```powershell
+npm ci
 npm start
 ```
 
@@ -37,8 +43,8 @@ Sau khi cập nhật mã nguồn, chạy `npm install` nếu dùng máy khác, r
 1. Mở một bài học. Bấm **Nghe câu hỏi** nếu cần.
 2. Bấm **Bắt đầu ghi âm**, cấp quyền micro khi điện thoại hỏi. Nói khoảng 20–30 giây rồi **Dừng ghi âm**.
 3. Bấm **Nghe lại bản thu**. Có thể ghi lại hoặc xóa.
-4. Chọn **Xem gợi ý / Tôi đã nói xong**, rồi **Nghe cụm từ** hoặc **Nghe câu trả lời mẫu**.
-5. Có thể ẩn gợi ý, tự nói lại và tự chọn **Cần luyện lại / Đã nói được**.
+4. Chọn **Xem câu trả lời mẫu**, rồi **Nghe cụm từ** hoặc **Nghe câu trả lời mẫu**.
+5. Có thể ẩn gợi ý, tự nói lại và tự chọn **Cần luyện lại / Đã nói được**. Bấm **Xác nhận tự đánh giá** để lưu; chỉ chuyển câu khi lưu tiến độ thành công.
 
 Lưu ý:
 
