@@ -97,17 +97,25 @@ File này ghi những thay đổi để các thành viên trong nhóm theo dõi.
 - Phạm vi: `README-SWAGGER.md`, `backend/src/admin-write.guard.ts`, `backend/src/app.ts`, `backend/test/api.test.cjs`, `backend/test/public-smoke.cjs`, `docs/development-log.md`.
 - Đã kiểm tra: `git diff --check` không báo lỗi nội dung; script public hợp lệ cú pháp. Các thư mục marketing, wireframes và báo cáo readiness không thuộc commit này.
 - Hướng dẫn stage đúng sáu file, kiểm tra danh sách staged, commit rồi push nhánh master để Render triển khai.
-- Trạng thái: mới hướng dẫn thao tác Git; chưa xác nhận commit, push hoặc deploy. Không đưa token thật lên Git.
+- Trạng thái: commit local `0c79a74` đã tạo; người thực hiện xác nhận hoàn tất push/deploy. Kiểm tra URL public bên dưới xác nhận Guard đã hoạt động. Không đưa token thật lên Git.
+
+### 12 — Kiểm tra Guard trên Render
+
+- Không sửa mã nguồn; cập nhật nhật ký.
+- Kết quả gọi trực tiếp `https://interview-english.onrender.com`: GET `/api/lessons` trả 200; POST `/api/lessons` với body `{}` không token trả 401; `/openapi.json` có schema `admin-token` với scheme `bearer`.
+- Các phép thử trên không tạo hoặc sửa bản ghi.
+- Đã xác nhận: đọc công khai và chặn ghi thiếu token trên public. Ảnh Swagger người thực hiện gửi xác nhận sau Authorize, POST body `{}` trả 400 với lỗi thiếu trường của DTO; token production đã được chấp nhận. Không tạo bài học trong phép thử này.
+- CRUD public bằng script public-smoke đã được xác nhận đạt ở bước 14. Không ghi token vào nhật ký.
 
 ## Những việc còn lại của phần bảo vệ API
 
 1. Phép thử local ở bước 04 đã được người thực hiện xác nhận đạt.
 2. Test `backend/test/api.test.cjs` đã được cập nhật theo Guard mới và đạt 51 kiểm tra HTTP.
-3. Cập nhật `backend/test/public-smoke.cjs` trước khi dùng lại với server có Guard. Không ghi token thật vào script.
-4. Biến môi trường quản trị trên Render đã được lưu; mô tả Swagger trong app.ts đã cập nhật. Cần rà soát tài liệu README liên quan trước khi push.
-5. Commit/push đúng các file cần thiết, chờ deploy rồi thử đọc và chặn ghi trên URL public.
+3. Script `backend/test/public-smoke.cjs` đã cập nhật, kiểm tra cú pháp và chạy public thành công theo ảnh ở bước 14.
+4. Biến môi trường Render, mô tả Swagger và README đã cập nhật.
+5. Commit `0c79a74` đã triển khai; GET 200, POST thiếu token 401 và POST có token đúng với body thiếu trường 400 đã được xác nhận. Các cập nhật nhật ký sau commit cần được commit sau khi hoàn tất kiểm tra.
 
-Việc build thành công chỉ xác nhận mã biên dịch được, không chứng minh API public đã được bảo vệ. Bản sửa local chưa được push/deploy trong đợt hướng dẫn này.
+Phần Guard đã được triển khai và kiểm tra local/public; còn đưa bản nhật ký kết quả mới nhất lên GitHub. Dữ liệu JSON trên Render vẫn chưa có lưu trữ bền vững.
 
 ## Mẫu ghi cho các bước tiếp theo
 
@@ -120,3 +128,20 @@ Việc build thành công chỉ xác nhận mã biên dịch được, không ch
 - Điều còn lại và ảnh hưởng tới thành viên khác:
 
 Hướng dẫn đã đưa ra nhưng chưa thấy file lưu hoặc chưa chạy kiểm tra phải ghi là “chưa xác nhận”.
+
+### 13 — Khắc phục lấy nhầm nội dung clipboard khi chạy public smoke
+
+- Ảnh terminal cho thấy ADMIN_API_KEY chứa đoạn lệnh PowerShell nhiều dòng thay vì token; fetch từ chối header Authorization do ký tự xuống dòng (invalid header value).
+- Chưa xác nhận CRUD public đạt; lỗi này không chứng minh backend bị lỗi hoặc token Render sai.
+- Nguyên nhân: sao chép khối lệnh hướng dẫn sau khi sao chép token đã ghi đè clipboard.
+- Hướng dẫn: dán sẵn lệnh gán Get-Clipboard vào terminal nhưng chưa Enter, quay lại Render sao chép token, rồi trở về terminal nhấn Enter. Gõ tay lệnh chạy script sau đó để tránh dán token vào terminal.
+- Không ghi token vào log. Chưa sửa mã nguồn trong bước này.
+
+### 14 — Xác nhận public smoke đạt trên Render
+
+- Bằng chứng: ảnh terminal người thực hiện gửi có `PUBLIC SMOKE PASSED`.
+- Kết quả: GET 200; POST thiếu/sai token 401; POST có token với body thiếu trường 400; tạo bài/câu hỏi 201; sửa và đọc 200; xóa bài còn câu hỏi 409; xóa câu hỏi và bài thử 204; GET sau xóa 404. Cleanup lặp lại trả 404 đúng dự kiến.
+- Dữ liệu thử của lần chạy đã được xóa theo kết quả trên ảnh. Không ghi token vào tài liệu.
+- File cập nhật trong bước này: chỉ `docs/development-log.md`; không sửa giao diện hoặc mã backend.
+- Hướng dẫn tiếp: xóa biến token khỏi terminal và clipboard, commit/push riêng nhật ký để nhóm đọc được. Chưa xác nhận người thực hiện hoàn tất hai thao tác này.
+- Ưu tiên tiếp theo sau khi lưu kết quả: thiết kế lưu trữ database bền vững thay cho JSON trước khi bổ sung tài khoản và đồng bộ tiến độ.
