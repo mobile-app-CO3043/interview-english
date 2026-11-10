@@ -316,3 +316,58 @@ Hướng dẫn đã đưa ra nhưng chưa thấy file lưu hoặc chưa chạy k
 - Kiểm tra: Expo npm run typecheck đạt, git diff --check không lỗi nội dung; .env.local và backend/.env được git check-ignore xác nhận loại trừ. Backend đã đạt 51 HTTP checks ở bước 31, từ đó chỉ sửa tài liệu/mô tả Swagger.
 - Hướng dẫn stage danh sách file PostgreSQL/Neon và tài liệu cụ thể, bỏ qua marketing, wireframes và readiness; kiểm tra staged rồi commit/push để Render triển khai.
 - Trạng thái: chưa stage, commit, push hoặc xác nhận Render chạy PostgreSQL. Người thực hiện đã xác nhận thêm DATABASE_URL trên Render, chưa kiểm tra giá trị. Sau Live cần kiểm tra GET, CRUD có token và dữ liệu còn sau restart/deploy.
+
+### 35 — Xác nhận bản PostgreSQL bắt đầu phục vụ trên Render
+
+- Đã xác minh local và remote master cùng commit 71d2a084a90be8bebc71faa5981781799030f395.
+- Lần gọi public đầu còn mô tả JSON; sau khi chờ, OpenAPI đổi sang mô tả PostgreSQL. GET /api/lessons trả 200 với 3 bài và GET /api/questions trả 200 với 9 câu.
+- Cập nhật trực tiếp README-SWAGGER.md và nhật ký. Chưa khẳng định CRUD có token hoặc persistence sau restart public đã đạt.
+- Hướng dẫn tiếp: chạy test/public-smoke.cjs với token Render, dùng lệnh clipboard chuẩn bị trước rồi sao chép token; kết quả mong đợi PUBLIC SMOKE PASSED. Sau kiểm tra xóa biến token và ghi đè clipboard bằng chuỗi không rỗng.
+- Trạng thái: public đọc PostgreSQL đã đáp ứng; chờ kết quả smoke test bản PostgreSQL. Không thay đổi frontend.
+
+### 36 — Smoke PostgreSQL public bị chặn vì token
+
+- Ảnh terminal: script kết thúc với POST /api/lessons -> 401; các lệnh cleanup cũng trả 401. Chưa có PUBLIC SMOKE PASSED cho bản PostgreSQL.
+- Không kết luận database lỗi: 401 đến từ Guard. Chưa biết giá trị đã nhập là token sai, token cũ hay nội dung clipboard khác; không đọc hoặc yêu cầu gửi token.
+- Hướng dẫn nhập bằng Read-Host -AsSecureString rồi chuyển vào biến môi trường bằng NetworkCredential, để token không hiển thị hoặc trở thành câu lệnh trong history. Lấy đúng ADMIN_API_KEY trên Render, không dùng DATABASE_URL hoặc token local.
+- Kiểm tra không tạo dữ liệu: POST /api/lessons body {} với token env; mong đợi 400 trước khi chạy lại public-smoke.
+- Trạng thái: đang chờ nhập lại token và kiểm tra; chưa xác nhận CRUD public của bản PostgreSQL.
+
+### 37 — Xác nhận smoke PostgreSQL public và hướng dẫn persistence
+
+- Ảnh người thực hiện gửi xác nhận PUBLIC SMOKE PASSED: GET 200, POST thiếu/sai token 401, body thiếu trường có token 400, tạo bài/câu 201, PATCH 200, DELETE bài còn câu 409, xóa bản ghi thử 204 và kiểm tra sau xóa 404.
+- Các bản ghi smoke đã được dọn theo ảnh. Đã trực tiếp cập nhật README-SWAGGER.md và nhật ký.
+- Bước tiếp hướng dẫn tạo bài kiểm tra riêng trong Swagger, ghi nhận 201, deploy lại cùng commit trên Render, GET bài kiểm tra mong đợi 200 rồi DELETE 204 để dọn.
+- Trạng thái: CRUD public PostgreSQL đã đạt; persistence qua deploy Render chưa xác nhận. Không ghi token vào Markdown hoặc thay đổi frontend.
+
+### 38 — Phân biệt Swagger local và kết quả thực thi persistence
+
+- Ảnh người thực hiện gửi mở localhost:3102/docs; Server response báo Failed to fetch, chưa có mã 201 thực tế. Mục Responses/201 phía dưới là tài liệu API, không phải kết quả chạy.
+- Hướng dẫn dùng Swagger HTTPS trên Render để tiếp tục phép thử persistence; không tự kết luận CORS là nguyên nhân của lỗi local.
+- Ảnh có hiển thị header Authorization với token. Không sao chép token vào log; hướng dẫn thay token local đã xuất hiện, hoặc đổi ADMIN_API_KEY trên Render nếu cùng giá trị đang được dùng ở đó.
+- Chưa xác nhận POST tạo bài thử thành công hoặc persistence qua deploy.
+
+### 39 — Tạo thành công bản ghi kiểm tra persistence trên Render
+
+- Ảnh Swagger HTTPS trên Render xác nhận Server response 201, id persist-check-20261110, title Kiểm tra giữ dữ liệu sau deploy, questionCount 0.
+- Bản ghi thử đã được tạo; chưa xác nhận deploy lại hoặc dữ liệu còn sau deploy. Hướng dẫn tiếp: Manual Deploy / Deploy latest commit, đợi lần deploy mới Live, GET cùng ID mong đợi 200 rồi dọn bằng DELETE 204.
+- Ảnh tiếp tục hiển thị token quản trị trong Curl; không lưu giá trị vào nhật ký. Cần thay ADMIN_API_KEY đã lộ trên Render và áp dụng cấu hình mới; có thể thực hiện cùng lần redeploy kiểm tra persistence. Không thay DATABASE_URL.
+- File sửa trong bước này: chỉ docs/development-log.md.
+
+### 40 — Xác nhận bài thử persistence còn trên public, chuẩn bị dọn
+
+- Người thực hiện báo GET 200 sau bước đổi token/deploy và xác nhận hoàn tất. Ảnh gần nhất chỉ chụp phần tài liệu Responses, nên mốc deploy dựa trên xác nhận của người thực hiện.
+- Đã gọi độc lập GET /api/lessons/persist-check-20261110: 200, đúng tiêu đề Kiểm tra giữ dữ liệu sau deploy, questionCount 0.
+- Đã trực tiếp cập nhật README-SWAGGER.md và nhật ký, phân biệt kết quả GET trực tiếp với xác nhận deploy của người thực hiện.
+- Hướng dẫn tiếp: Authorize bằng token Render mới, DELETE riêng bài persist-check-20261110, mong đợi 204, GET lại mong đợi 404. Chưa xóa thay người thực hiện hoặc đọc token.
+- Swagger dùng mẫu ErrorResponse chung nên ví dụ 400/409 hiện statusCode 404; đây là lỗi tài liệu đã ghi nhận, chưa sửa code trong bước này.
+- Trạng thái: bản ghi thử còn tồn tại, đang chờ xác nhận cleanup. Chưa commit/push tài liệu mới.
+
+### 41 — Hoàn tất dọn bài persistence và chốt PostgreSQL
+
+- Người thực hiện xác nhận DELETE bài persist-check-20261110 trả 204 sau khi xử lý token.
+- Kiểm tra độc lập URL public: GET bài thử trả 404; GET /api/lessons trả 200 với 3 bài; GET /api/questions trả 200 với 9 câu.
+- Đã trực tiếp cập nhật README-SWAGGER.md và nhật ký; không sửa code hoặc frontend trong bước này.
+- Kết quả phần PostgreSQL: local 51 HTTP checks đạt; smoke CRUD public đạt; người thực hiện xác nhận dữ liệu qua deploy; bài thử đã được dọn và kiểm tra lại.
+- Hướng dẫn tiếp: commit/push riêng README-SWAGGER.md và docs/development-log.md để nhóm đọc kết quả. Chưa xác nhận commit/push tài liệu cuối.
+- Công việc còn lại của ứng dụng: tài khoản người dùng và quyền truy cập theo tài khoản; đồng bộ tiến độ. Lỗi ví dụ Swagger 400/409 cùng mẫu 404 vẫn là hạng mục tài liệu code cần sửa riêng, chưa ảnh hưởng kết quả HTTP thực tế.

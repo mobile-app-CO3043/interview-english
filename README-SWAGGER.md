@@ -139,7 +139,7 @@ npm test
 
 Bài kiểm thử cần mạng tới Neon. Helper tạo schema PostgreSQL ngẫu nhiên, nhập seed riêng, dựng server trên cổng ngẫu nhiên và kiểm tra Swagger, hai nhóm CRUD, quyền quản trị, validation, liên kết bài/câu và dữ liệu sau khi khởi động lại. Sau khi đóng ứng dụng, helper xóa schema test. Không đặt DATABASE_SCHEMA trong .env hoặc Render; bộ test tự quản lý biến này. Không chạy test với search_path trỏ tới bảng nội dung thật.
 
-Ngày 10/11/2026: bản PostgreSQL local build thành công và đạt 51 kiểm tra HTTP, gồm CRUD, validation, quyền quản trị và dữ liệu sau khi khởi động lại ứng dụng. Test dùng schema tạm riêng rồi dọn sau khi kết thúc. Render đã qua smoke test của bản trước; bản PostgreSQL vẫn cần deploy và kiểm tra public.
+Ngày 10/11/2026: bản PostgreSQL local build thành công và đạt 51 kiểm tra HTTP, gồm CRUD, validation, quyền quản trị và dữ liệu sau khi khởi động lại ứng dụng. Test dùng schema tạm riêng rồi dọn sau khi kết thúc. Ảnh terminal xác nhận bản PostgreSQL trên Render đạt PUBLIC SMOKE PASSED, các bản ghi smoke đã được xóa. Người thực hiện xác nhận GET bài thử trả 200 sau deploy lại; trợ lý kiểm tra lại URL public cũng nhận đúng bản ghi persist-check-20261110. Người thực hiện xác nhận DELETE trả 204; kiểm tra độc lập sau đó GET bài thử trả 404, danh sách còn 3 bài và 9 câu.
 
 Có thể thử trực tiếp URL công khai bằng:
 
@@ -204,7 +204,7 @@ backend/
   start-public.ps1       Mở tunnel khi backend đã chạy
 ```
 
-App Expo đã kết nối API đọc nội dung. Guard quản trị đã được kiểm tra trên Render. Bản PostgreSQL đã đạt kiểm thử local, đang chờ deploy và kiểm tra public. Chưa có tài khoản người dùng hoặc đồng bộ tiến độ; app Expo không chứa token quản trị hay mật khẩu database.
+App Expo đã kết nối API đọc nội dung. Commit PostgreSQL `71d2a08` đã triển khai trên Render; GET trả 3 bài học, 9 câu hỏi với mã 200 và CRUD có token đạt PUBLIC SMOKE PASSED theo ảnh kết quả ngày 10/11/2026. Bản local đạt 51 kiểm tra HTTP; người thực hiện đã xác nhận giữ bài thử qua deploy lại và GET public được kiểm tra lại thành công. Chưa có tài khoản người dùng hoặc đồng bộ tiến độ; app Expo không chứa token quản trị hay mật khẩu database.
 
 ## 9. Tài liệu chính thức đã tham khảo
 
