@@ -97,7 +97,7 @@ Mã lỗi được xử lý: **400** nếu body sai, thiếu trường, trườn
 8. Xóa `demo-question` trước, rồi xóa `demo-lesson`. Cả hai trả 204, body trống là đúng. Nếu demo nhiều lần mà gặp 409 trùng ID, dùng ID mới hoặc xóa dữ liệu demo cũ.
 9. Thử GET với ID `missing` để minh họa 404; POST body `{}` để minh họa 400; xóa bài `intro` còn câu hỏi để minh họa 409.
 
-API này là môi trường demo công khai, chưa có phân quyền. Chỉ nhập dữ liệu bài học thử nghiệm, không nhập dữ liệu cá nhân. Người khác có URL cũng có thể thay đổi dữ liệu demo.
+Sau khi deploy Guard: GET công khai; POST, PATCH và DELETE cần token quản trị. Trước khi thử thao tác ghi trong Swagger, bấm Authorize, dán token vào ô nhập mà không thêm chữ Bearer, rồi xác nhận. Thiếu hoặc sai token trả 401; server chưa cấu hình ADMIN_API_KEY trả 503. Khi đã Authorize đúng, POST body {} trả 400 do thiếu trường. Chỉ dùng dữ liệu thử nghiệm.
 
 ## 5. Chạy lại backend trên máy
 
@@ -107,6 +107,7 @@ Mở terminal PowerShell riêng, không dừng terminal Expo:
 cd 'D:\261\Mobile App\tu-vung-thuc-te\backend'
 npm ci
 npm run build
+$env:ADMIN_API_KEY = node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))"
 npm start
 ```
 
@@ -144,7 +145,7 @@ Có thể thử trực tiếp URL công khai bằng:
 node test/public-smoke.cjs https://interview-english.onrender.com
 ```
 
-Script public tạo bản ghi thử có ID riêng, kiểm tra đọc/sửa/xóa rồi dọn các bản ghi đó.
+Chỉ chạy script public sau khi deploy Guard. Trước khi chạy, đặt biến môi trường ADMIN_API_KEY trong terminal bằng đúng token đã cấu hình trên Render. Script kiểm tra GET công khai, chặn POST thiếu/sai token và thử CRUD bằng token đúng trên các bản ghi thử riêng, sau đó dọn dữ liệu thử. Không ghi token thật vào script hoặc GitHub.
 
 Backend lưu vào `backend/data/database.json`. Lần đầu chạy, nó khởi tạo từ `backend/seed.json`. Cùng một máy và cùng file dữ liệu thì restart vẫn giữ thay đổi. Đây là lưu file JSON cho một server demo, chưa phải cơ sở dữ liệu dùng cho nhiều instance. Có thể đổi vị trí bằng biến môi trường `DATA_FILE`.
 
@@ -196,7 +197,7 @@ backend/
   start-public.ps1       Mở tunnel khi backend đã chạy
 ```
 
-App Expo đã kết nối các API đọc nội dung. Chưa có đăng nhập, phân quyền quản trị, database production, đồng bộ tiến độ từng người dùng hoặc ghi dữ liệu quản trị từ app. Hai API collections vẫn có CRUD để thử trên Swagger. Môi trường demo công khai chỉ dùng dữ liệu thử nghiệm.
+App Expo đã kết nối API đọc nội dung. Backend đã bổ sung Guard dùng Bearer token quản trị cho thao tác ghi và đã kiểm tra local; cần deploy rồi kiểm tra lại trên Render. Chưa có tài khoản người dùng, database production hoặc đồng bộ tiến độ. App Expo không chứa token quản trị.
 
 ## 9. Tài liệu chính thức đã tham khảo
 

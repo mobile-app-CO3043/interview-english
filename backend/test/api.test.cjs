@@ -8,6 +8,13 @@ test('Swagger, two CRUD collections, validation, relations and persistence', asy
   const directory = mkdtempSync(join(tmpdir(), 'interview-api-'));
   process.env.DATA_FILE = join(directory, 'database.json');
   process.env.NODE_ENV = 'test';
+  // Token riêng cho test, không sử dụng token quản trị thật.
+  const previousAdminApiKey = process.env.ADMIN_API_KEY;
+  const adminToken = require('node:crypto')
+    .randomBytes(32)
+    .toString('hex');
+
+  process.env.ADMIN_API_KEY = adminToken;
   const { createApp } = require('../dist/app');
   let app;
   let assertions = 0;
@@ -15,13 +22,32 @@ test('Swagger, two CRUD collections, validation, relations and persistence', asy
     app = await createApp();
     await app.listen(0, '127.0.0.1');
     let base = await app.getUrl();
-    const request = async (path, status = 200, method = 'GET', body) => {
+    const request = async (
+      path,
+      status = 200,
+      method = 'GET',
+      body,
+      token = ['GET', 'HEAD', 'OPTIONS'].includes(method)
+        ? null
+        : adminToken,
+    ) => {
       const response = await fetch(base + path, {
         method,
-        headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
+        headers: {
+          ...(body === undefined
+            ? {}
+            : { 'Content-Type': 'application/json' }),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
-      assert.equal(response.status, status, `${method} ${path}: ${await response.clone().text()}`);
+
+      assert.equal(
+        response.status,
+        status,
+        `${method} ${path}: ${await response.clone().text()}`,
+      );
+
       assertions++;
       return response.status === 204 ? null : response.json();
     };
@@ -35,6 +61,39 @@ test('Swagger, two CRUD collections, validation, relations and persistence', asy
     assert.ok(spec.paths['/api/lessons'].post);
     assert.ok(spec.paths['/api/questions/{questionId}'].delete);
     assert.ok(spec.components.schemas.UpdateQuestionDto);
+    // Swagger có khai báo cách gửi token.
+    assert.equal(
+      spec.components.securitySchemes['admin-token'].scheme,
+      'bearer',
+    );
+
+    // Đọc bài học không cần token.
+    await request('/api/lessons', 200, 'GET', undefined, null);
+
+    // Thiếu hoặc sai token đều bị chặn ở cả hai nhóm API.
+    for (const [method, path] of [
+      ['POST', '/api/lessons'],
+      ['PATCH', '/api/lessons/intro'],
+      ['DELETE', '/api/lessons/missing'],
+      ['POST', '/api/questions'],
+      ['PATCH', '/api/questions/yourself'],
+      ['DELETE', '/api/questions/missing'],
+    ]) {
+      const body = method === 'DELETE' ? undefined : {};
+
+      await request(path, 401, method, body, null);
+      await request(path, 401, method, body, 'invalid-test-token');
+    }
+
+    // Thiếu cấu hình quản trị vẫn cho đọc nhưng không cho ghi.
+    delete process.env.ADMIN_API_KEY;
+
+    try {
+      await request('/api/lessons', 200, 'GET', undefined, null);
+      await request('/api/lessons', 503, 'POST', {});
+    } finally {
+      process.env.ADMIN_API_KEY = adminToken;
+    }
     assert.equal((await request('/api/lessons')).length, 3);
     assert.equal((await request('/api/questions')).length, 9);
     assert.equal((await request('/api/lessons/intro/questions')).length, 3);
@@ -78,6 +137,12 @@ test('Swagger, two CRUD collections, validation, relations and persistence', asy
     assert.equal((await request('/api/questions')).length, 9);
     console.log(`${assertions} HTTP checks passed; Swagger assets, validation, CRUD and restart persistence verified.`);
   } finally {
+        // Khôi phục cấu hình trước khi chạy test.
+    if (previousAdminApiKey === undefined) {
+      delete process.env.ADMIN_API_KEY;
+    } else {
+      process.env.ADMIN_API_KEY = previousAdminApiKey;
+    }
     if (app) await app.close();
     rmSync(directory, { recursive: true, force: true });
   }
