@@ -3,13 +3,15 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_GUARD, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LessonsController, QuestionsController } from './controllers';
-import { Store } from './store';
+import { PostgresStore } from './postgres-store';
+import { DatabaseService } from './database.service';
 import { AdminWriteGuard } from './admin-write.guard';
 
   @Module({
     controllers: [LessonsController, QuestionsController],
     providers: [
-      Store,
+      DatabaseService,
+      PostgresStore,
       {
         provide: APP_GUARD,
         useClass: AdminWriteGuard,
@@ -24,7 +26,7 @@ export async function createApp() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
   const config = new DocumentBuilder()
     .setTitle('Interview English API')
-        .setDescription('Backend NestJS cho dự án Interview English, gồm Lessons và Questions. App Expo đã kết nối để đọc bài học và câu hỏi. GET được truy cập công khai; POST, PATCH và DELETE yêu cầu Bearer token quản trị. Chưa có hệ thống tài khoản người dùng. Dữ liệu lưu bằng JSON; trên hosting không có ổ đĩa bền vững, dữ liệu có thể được khởi tạo lại khi deploy hoặc restart.')
+      .setDescription('Backend NestJS cho Interview English, gồm Lessons và Questions. App Expo đọc nội dung qua API. GET công khai; POST, PATCH và DELETE yêu cầu Bearer token quản trị. Dữ liệu bài học và câu hỏi lưu trong PostgreSQL. Chưa có tài khoản người dùng; tiến độ học vẫn lưu trên điện thoại.')
     .addBearerAuth(
       {
         type: 'http',

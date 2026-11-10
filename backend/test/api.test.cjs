@@ -1,25 +1,34 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { mkdtempSync, rmSync } = require('node:fs');
-const { tmpdir } = require('node:os');
-const { join } = require('node:path');
+const { createTestDatabase } = require('./database-helper.cjs');
 
 test('Swagger, two CRUD collections, validation, relations and persistence', async () => {
-  const directory = mkdtempSync(join(tmpdir(), 'interview-api-'));
-  process.env.DATA_FILE = join(directory, 'database.json');
+    const previousEnv = {
+    DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_SCHEMA: process.env.DATABASE_SCHEMA,
+    ADMIN_API_KEY: process.env.ADMIN_API_KEY,
+    NODE_ENV: process.env.NODE_ENV,
+  };
+
   process.env.NODE_ENV = 'test';
-  // Token riêng cho test, không sử dụng token quản trị thật.
-  const previousAdminApiKey = process.env.ADMIN_API_KEY;
+
   const adminToken = require('node:crypto')
     .randomBytes(32)
     .toString('hex');
 
   process.env.ADMIN_API_KEY = adminToken;
+
   const { createApp } = require('../dist/app');
   let app;
+  let testDatabase;
   let assertions = 0;
   try {
-    app = await createApp();
+        testDatabase = await createTestDatabase();
+
+        process.env.DATABASE_URL = testDatabase.connectionString;
+        process.env.DATABASE_SCHEMA = testDatabase.schema;
+
+        app = await createApp();
     await app.listen(0, '127.0.0.1');
     let base = await app.getUrl();
     const request = async (
@@ -136,14 +145,21 @@ test('Swagger, two CRUD collections, validation, relations and persistence', asy
     assert.equal((await request('/api/lessons')).length, 3);
     assert.equal((await request('/api/questions')).length, 9);
     console.log(`${assertions} HTTP checks passed; Swagger assets, validation, CRUD and restart persistence verified.`);
-  } finally {
-        // Khôi phục cấu hình trước khi chạy test.
-    if (previousAdminApiKey === undefined) {
-      delete process.env.ADMIN_API_KEY;
-    } else {
-      process.env.ADMIN_API_KEY = previousAdminApiKey;
+    } finally {
+    try {
+      if (app) await app.close();
+    } finally {
+      try {
+        if (testDatabase) await testDatabase.cleanup();
+      } finally {
+        for (const [key, value] of Object.entries(previousEnv)) {
+          if (value === undefined) {
+            delete process.env[key];
+          } else {
+            process.env[key] = value;
+          }
+        }
+      }
     }
-    if (app) await app.close();
-    rmSync(directory, { recursive: true, force: true });
   }
 });

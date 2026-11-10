@@ -145,3 +145,174 @@ Hướng dẫn đã đưa ra nhưng chưa thấy file lưu hoặc chưa chạy k
 - File cập nhật trong bước này: chỉ `docs/development-log.md`; không sửa giao diện hoặc mã backend.
 - Hướng dẫn tiếp: xóa biến token khỏi terminal và clipboard, commit/push riêng nhật ký để nhóm đọc được. Chưa xác nhận người thực hiện hoàn tất hai thao tác này.
 - Ưu tiên tiếp theo sau khi lưu kết quả: thiết kế lưu trữ database bền vững thay cho JSON trước khi bổ sung tài khoản và đồng bộ tiến độ.
+
+### 15 — Bắt đầu chuẩn bị PostgreSQL
+
+- Đã xác nhận commit nhật ký `00da454` có trong Git local; người thực hiện xác nhận hoàn tất dọn token.
+- Đọc lại store.ts: backend hiện lưu JSON đồng bộ và chưa có thư viện PostgreSQL.
+- Đề xuất dùng PostgreSQL trên Neon, backend tiếp tục chạy Render. Bước đầu chỉ tạo project database tên interview-english và xem mục Connect; chưa thêm DATABASE_URL vào Render hoặc sửa code.
+- Tài liệu tham khảo: https://neon.com/docs/get-started/connect-neon
+- Trạng thái: đã hướng dẫn tạo project, chưa xác nhận database được tạo. Không ghi connection string hoặc mật khẩu vào nhật ký.
+
+### 16 — Tạo và liên kết Neon theo yêu cầu trực tiếp
+
+- Theo https://neon.com/get-started/prompt.md, đã cài Neon CLI, đăng nhập qua trình duyệt và chạy neon init cho Codex.
+- Organization: org-weathered-heart-70870458. Project: interview-english (red-voice-58118098). Region người thực hiện chọn: AWS Singapore. Branch: main.
+- CLI đã cài plugin Neon cho Codex, tạo neon.ts và liên kết .neon, sinh .env.local gồm DATABASE_URL và DATABASE_URL_UNPOOLED cùng metadata branch. Không ghi giá trị bí mật vào nhật ký.
+- File thay đổi: .gitignore (bỏ qua env), neon.ts, package.json/package-lock.json (dependency do Neon init), backend/package.json/package-lock.json (dotenv), backend/src/main.ts (đọc env khi khởi động), backend/.env.example (mẫu không có bí mật), docs/development-log.md.
+- Đã lưu hai connection strings vào backend/.env. File này và .env.local bị Git bỏ qua; backend đọc .env khi chạy npm start tại backend. Không có import database vào giao diện Expo.
+- Kiểm tra: Expo typecheck đạt; backend build và 51 HTTP checks đạt; hai URL có định dạng PostgreSQL hợp lệ. Chưa chạy truy vấn SQL hoặc migrate dữ liệu.
+- Phạm vi: kết nối cấu hình đã chuẩn bị; Store vẫn dùng JSON. Chưa thay đổi Render, chưa commit hoặc push bước này. Cần khởi động lại Codex để nạp plugin/MCP Neon.
+
+### 17 — Hướng dẫn cài driver PostgreSQL cho backend
+
+- Đã kiểm tra package.json và controllers.ts: backend chưa có pg; Store vẫn dùng file JSON. MCP Neon chưa xuất hiện trong danh sách công cụ của phiên hiện tại, có thể tiếp tục bằng CLI đã đăng nhập.
+- Hướng dẫn chạy tại backend: npm install pg; npm install -D @types/pg; npm run build.
+- File sẽ thay đổi khi cài: backend/package.json, backend/package-lock.json. Không cài driver vào package Expo ở thư mục gốc.
+- Mục đích: chuẩn bị thư viện gửi truy vấn PostgreSQL và kiểu TypeScript, trước khi viết script tạo bảng và seed.
+- Trạng thái: đã hướng dẫn, chưa xác nhận cài thư viện hoặc build. Chưa tạo bảng, sửa Store, migrate dữ liệu hoặc thay đổi Render.
+
+### 18 — Hướng dẫn tạo schema PostgreSQL
+
+- Đã đọc backend/package.json: pg và @types/pg đã được cài; người thực hiện xác nhận build đạt.
+- File hướng dẫn tạo mới: backend/sql/001-create-tables.sql.
+- Hai bảng lessons và questions giữ các trường hiện có trong DTO. questions.lesson_id tham chiếu lessons.id với ON DELETE RESTRICT; có index để lấy câu hỏi theo bài. sort_order giữ thứ tự bài/câu khi chuyển từ mảng JSON.
+- Không lưu questionCount thành cột: sẽ đếm câu hỏi khi đọc. SQL sử dụng transaction và CREATE TABLE IF NOT EXISTS cho lần khởi tạo; không phải công cụ tự sửa schema cũ.
+- Trạng thái: mới hướng dẫn lưu file SQL; chưa chạy SQL, tạo bảng thực tế, seed hoặc chuyển Store sang PostgreSQL. Bước sau sẽ tạo script đọc backend/.env để áp dụng schema.
+
+### 19 — Hướng dẫn chạy schema trên Neon
+
+- Đã đọc backend/sql/001-create-tables.sql: nội dung khớp hướng dẫn bước 18; file đã được lưu. Chưa chạy SQL tại thời điểm đọc.
+- File hướng dẫn tạo: backend/scripts/migrate.cjs. Script đọc backend/.env theo đường dẫn tuyệt đối dựa trên __dirname, ưu tiên DATABASE_URL_UNPOOLED và dùng pg Client.
+- Script chạy file SQL bằng một kết nối; khi lỗi thử ROLLBACK và đóng kết nối. Không in connection string hay toàn bộ lỗi chứa dữ liệu nhạy cảm; chỉ in mã lỗi nếu có.
+- Sau khi tạo bảng, đếm số dòng trong lessons/questions để xác nhận truy vấn thành công. Không xóa hoặc seed dữ liệu trong bước này.
+- Lệnh: node --check scripts/migrate.cjs, sau đó node scripts/migrate.cjs tại backend.
+- Trạng thái: mới hướng dẫn; chưa xác nhận script được lưu hoặc bảng đã được tạo trên Neon. Backend Store vẫn dùng JSON.
+
+### 20 — Hướng dẫn nhập dữ liệu mẫu PostgreSQL
+
+- Đã đọc scripts/migrate.cjs; người thực hiện xác nhận hoàn tất chạy migration. Chưa có ảnh hoặc phép truy vấn độc lập xác minh kết quả trong bước này.
+- Đã kiểm tra seed.json gồm 3 bài học và 9 câu hỏi.
+- File hướng dẫn tạo: backend/scripts/seed.cjs. Đọc backend/.env và seed.json, nhập bài trước rồi câu hỏi trong một transaction, truy vấn có tham số và giữ sort_order theo thứ tự mảng.
+- ON CONFLICT (id) DO NOTHING: không ghi đè dữ liệu đã có. Đây là nhập dữ liệu mẫu từ seed.json, không phải chuyển những chỉnh sửa trong data/database.json hoặc dữ liệu hiện tại trên Render.
+- Lệnh: node --check scripts/seed.cjs, rồi node scripts/seed.cjs tại backend. Database mới mong đợi 3 bài, 9 câu và DATABASE SEED PASSED.
+- Trạng thái: đã hướng dẫn, chưa xác nhận file seed.cjs đã lưu hoặc dữ liệu đã nhập. Store vẫn dùng JSON, chưa chuyển API sang PostgreSQL.
+
+### 21 — Hướng dẫn tạo service kết nối PostgreSQL
+
+- Người thực hiện xác nhận đã nhập seed; đã đọc phần đầu scripts/seed.cjs. Chưa truy vấn độc lập để xác nhận số lượng dữ liệu.
+- File hướng dẫn tạo: backend/src/database.service.ts.
+- Service dùng pg Pool với DATABASE_URL, tối đa 5 kết nối, timeout kết nối 15 giây, timeout query 30 giây; kiểm tra SELECT 1 khi Nest khởi tạo và đóng Pool khi ứng dụng dừng.
+- Thiếu DATABASE_URL sẽ báo lỗi cấu hình, không tự quay về JSON; không ghi connection string vào code hoặc log.
+- Kiểm tra bước này: npm run build tại backend. Chỉ xác minh biên dịch; service chưa đăng ký trong AppModule, Store chưa đổi và API vẫn dùng JSON.
+- Trạng thái: đã hướng dẫn, chưa xác nhận file mới đã lưu hoặc build. Bước sau thay Store và đăng ký service.
+
+### 22 — Hướng dẫn tạo phần đọc dữ liệu PostgreSQL
+
+- Đã đọc database.service.ts: file được lưu đúng; người thực hiện xác nhận build đạt.
+- File hướng dẫn tạo: backend/src/postgres-store.ts. Chuẩn bị PostgresStore với listLessons/getLesson/listQuestions/getQuestion, dùng DatabaseService và truy vấn tham số.
+- Trả questionCount dạng số nguyên, đổi lesson_id thành lessonId và không lộ sort_order trong JSON trả về; giữ thứ tự theo sort_order, id.
+- Kiểm tra bước này: npm run build tại backend. Chưa đăng ký PostgresStore vào AppModule; API vẫn dùng Store JSON. Các phương thức ghi sẽ bổ sung trước khi kích hoạt.
+- Trạng thái: mới hướng dẫn; chưa xác nhận file mới đã lưu hoặc build. Chưa chạy test đọc PostgreSQL qua API.
+
+### 23 — Hướng dẫn thêm thao tác ghi bài học vào PostgresStore
+
+- Đã đọc postgres-store.ts: bốn hàm đọc được lưu; người thực hiện xác nhận build đạt.
+- File sửa: backend/src/postgres-store.ts. Tại bản hiện tại: thêm createLesson/updateLesson/deleteLesson trước dấu đóng class dòng 72; bổ sung import ConflictException và DTO tạo/cập nhật bài học.
+- Truy vấn tham số, giữ ID bất biến, gán sort_order cho bài mới. UPDATE dùng COALESCE để PATCH chỉ đổi trường đã gửi; DTO hiện chặn null.
+- Xử lý lỗi unique violation 23505 thành 409 và foreign key violation 23503 khi xóa bài còn câu hỏi thành 409; ID không tồn tại trả 404.
+- Kiểm tra: npm run build. Chưa kích hoạt PostgresStore, chưa gọi API ghi PostgreSQL; còn ba hàm ghi câu hỏi trước khi nối AppModule/controllers.
+- Trạng thái: đã hướng dẫn, chưa xác nhận phần sửa được lưu hoặc build.
+
+### 24 — Hướng dẫn thêm thao tác ghi câu hỏi PostgreSQL
+
+- Đã đọc postgres-store.ts và xác nhận ba hàm ghi bài học đã lưu; người thực hiện báo build đạt.
+- File sửa: backend/src/postgres-store.ts. Trước dấu đóng class dòng 157 tại thời điểm đọc, thêm createQuestion/updateQuestion/deleteQuestion; thêm CreateQuestionDto và UpdateQuestionDto vào import DTO.
+- Truy vấn có tham số, ánh xạ lessonId sang lesson_id; ID câu hỏi bất biến. ID trùng trả 409; câu hỏi hoặc bài học không tồn tại trả 404. Khóa ngoại vẫn chặn dữ liệu mồ côi khi có thao tác đồng thời.
+- Kiểm tra: npm run build tại backend. PostgresStore chưa đăng ký; API hiện vẫn dùng JSON.
+- Trạng thái: đã hướng dẫn, chưa xác nhận file được lưu hoặc build. Tiếp theo nối provider và sửa controller DELETE để chờ Promise trước khi trả 204, rồi kiểm tra PostgreSQL thực tế.
+
+### 25 — Hướng dẫn kích hoạt PostgreSQL trong API local
+
+- Đã đọc phần cuối PostgresStore và file app/controllers; người thực hiện xác nhận build đạt sau khi thêm các hàm ghi câu hỏi.
+- File hướng dẫn sửa: backend/src/controllers.ts (import/inject PostgresStore và return Promise tại hai hàm DELETE); backend/src/app.ts (đăng ký DatabaseService, PostgresStore thay Store JSON).
+- Kiểm tra: build, mở server local cổng 3102 bằng npm start tại backend, thử GET lessons và câu hỏi bài intro trong Swagger. Chưa push hoặc thay đổi Render.
+- Bộ test api.test.cjs hiện vẫn chuẩn bị dữ liệu JSON tạm; cần chuyển sang database/schema test riêng trước khi chạy lại, tránh tác động database chính. Build không xác minh truy vấn SQL.
+- Trạng thái: mới hướng dẫn, chưa xác nhận sửa file hoặc API PostgreSQL local hoạt động. store.ts JSON cũ giữ lại nhưng không còn provider sau khi áp dụng bước này.
+
+### 26 — Chuẩn bị cô lập schema cho test PostgreSQL
+
+- Người thực hiện xác nhận bước nối API hoàn tất; đã đọc app.ts có DatabaseService và PostgresStore. Chưa có phép gọi độc lập xác minh API local trong bước này.
+- Đã đọc test/api.test.cjs: test cũ dùng DATA_FILE và ID cố định, chưa thể chạy an toàn với schema nội dung thật.
+- File hướng dẫn sửa: backend/src/database.service.ts. Thêm DATABASE_SCHEMA tùy chọn, kiểm tra tên bằng regex giới hạn, truyền search_path chỉ gồm schema đó qua options của pg Pool. Không thêm public làm fallback.
+- Khi không đặt DATABASE_SCHEMA, ứng dụng giữ search_path mặc định. Biến schema dành cho test sẽ do bộ test đặt và khôi phục, không thêm vào Render hoặc .env ở bước này.
+- Kiểm tra: npm run build. Chưa chạy npm test; còn tạo helper khởi tạo/seed schema tạm và sửa lifecycle test để dọn schema khi kết thúc.
+- Trạng thái: mới hướng dẫn, chưa xác nhận thay đổi được lưu hoặc build.
+
+### 27 — Hướng dẫn tạo helper database cho test
+
+- Đã đọc DatabaseService: cấu hình DATABASE_SCHEMA được lưu đúng; người thực hiện xác nhận build đạt.
+- File hướng dẫn tạo: backend/test/database-helper.cjs.
+- Helper đọc backend/.env, chọn direct URL nếu có, tạo schema tên test_<UUID> do code sinh; đặt search_path chỉ trỏ schema này, chạy file SQL và nhập seed vào các bảng riêng bằng truy vấn tham số.
+- Trả schema, connectionString và cleanup cho bộ test. cleanup chỉ DROP schema ngẫu nhiên của lần chạy, đóng kết nối trong finally; khi khởi tạo lỗi cũng dọn schema đã tạo.
+- Không in URL hoặc mật khẩu. Dữ liệu nội dung public không thuộc search_path của helper.
+- Kiểm tra bước này: node --check test/database-helper.cjs. Chưa chạy helper độc lập hoặc npm test; bước sau gắn vào test/api.test.cjs và khôi phục env sau test.
+- Trạng thái: đã hướng dẫn, chưa xác nhận file được lưu hoặc cú pháp đạt.
+
+### 28 — Hướng dẫn nối bộ test HTTP với schema PostgreSQL tạm
+
+- Đã đọc helper đã lưu và kiểm tra cú pháp thành công.
+- File sửa: backend/test/api.test.cjs. Bỏ setup thư mục JSON tạm; dùng createTestDatabase, đặt DATABASE_URL và DATABASE_SCHEMA cho ứng dụng test, giữ token ngẫu nhiên riêng.
+- Khi kết thúc: đóng app trước, cleanup schema sau, luôn khôi phục các biến môi trường đã đổi kể cả khi dọn lỗi. Các kiểm tra HTTP và restart giữ nguyên.
+- Chạy npm test tại backend; cần mạng tới Neon. Mong đợi 51 HTTP checks passed. Hai lần createApp dùng cùng schema test để kiểm tra dữ liệu còn sau restart, cuối cùng schema bị xóa.
+- Trạng thái: đã hướng dẫn sửa, chưa xác nhận file đã lưu hoặc toàn bộ test PostgreSQL đạt. Render vẫn chưa được chuyển sang database.
+
+### 29 — Chẩn đoán lỗi tạo câu hỏi PostgreSQL
+
+- Ảnh test: POST /api/questions nhận 500 thay vì 201.
+- Đã tái hiện truy vấn trực tiếp trong schema test riêng: PostgreSQL báo 42P08, inconsistent types deduced for parameter $2. Không phải cảnh báo SSL gây thất bại này.
+- Nguyên nhân: cùng tham số lessonId xuất hiện trong INSERT và biểu thức SELECT tính sort_order, PostgreSQL suy luận kiểu không nhất quán.
+- Đã thử truy vấn sửa trong schema tạm và đạt: ép $2 thành varchar(80) ở VALUES và WHERE của subquery. Schema chẩn đoán đã được dọn.
+- File hướng dẫn sửa: backend/src/postgres-store.ts, dòng 171 và 173 tại thời điểm đọc. Chưa tự sửa file; người thực hiện sẽ lưu rồi chạy npm test để kiểm tra toàn bộ.
+- Hướng dẫn truy vấn trước đây thiếu ép kiểu; lỗi nằm trong code được hướng dẫn, không phải thao tác nhập của người thực hiện.
+
+### 30 — Sửa ánh xạ lỗi ON DELETE RESTRICT
+
+- Test đã vượt bước tạo câu hỏi, hiện lỗi DELETE bài còn câu hỏi: nhận 500 thay vì 409.
+- Đã tái hiện bằng PostgresStore trong schema test riêng: Neon trả SQLSTATE 23001 (restrict_violation), trong khi code chỉ bắt 23503 (foreign_key_violation). Schema chẩn đoán đã được dọn.
+- File hướng dẫn sửa: backend/src/postgres-store.ts, dòng 151 tại thời điểm đọc. Chấp nhận cả 23001 và 23503 trong catch của deleteLesson, cùng chuyển thành ConflictException 409.
+- Không thay đổi các catch của createQuestion/updateQuestion; đây là trường hợp xóa bài với ON DELETE RESTRICT.
+- Trạng thái: đã tìm nguyên nhân, mới hướng dẫn sửa; chưa xác nhận toàn bộ npm test đạt. Lỗi do ánh xạ thiếu mã PostgreSQL trong hướng dẫn trước.
+
+### 31 — Trực tiếp sửa lỗi xóa bài còn câu hỏi và kiểm tra
+
+- Người thực hiện yêu cầu sửa trực tiếp bước này.
+- Đã sửa backend/src/postgres-store.ts dòng 151: deleteLesson nhận cả SQLSTATE 23503 và 23001, trả ConflictException 409 khi bài còn câu hỏi.
+- Đã chạy npm test tại backend: build đạt, 51 HTTP checks passed, 1 test đạt, 0 thất bại; có kiểm tra CRUD, validation, quyền quản trị và dữ liệu sau khi khởi động lại app trên schema PostgreSQL tạm.
+- Bộ test hoàn tất cleanup schema theo helper. Không sửa dữ liệu nội dung public hoặc deploy Render trong bước này.
+- Cập nhật file: backend/src/postgres-store.ts và docs/development-log.md. Chưa commit/push.
+
+### 32 — Chuẩn bị biến database trên Render trước deploy
+
+- Đã đọc Dockerfile: dùng COPY các đường dẫn cụ thể, hiện không copy .env; .dockerignore chưa có quy tắc env. Backend khởi tạo DatabaseService cần DATABASE_URL trên Render khi deploy code mới.
+- File hướng dẫn sửa: backend/.dockerignore, thêm .env và .env.* ở cuối để loại secrets khỏi build context.
+- Cấu hình hướng dẫn: Neon project red-voice-58118098, Connect, branch main, pooled connection string; thêm DATABASE_URL vào Environment của đúng Render service interview-english và chọn Save only.
+- Giữ nguyên ADMIN_API_KEY. Không thêm DATABASE_SCHEMA của test. DATABASE_URL_UNPOOLED chỉ đang dùng cho migration/seed local, chưa cần đặt trên Render.
+- Trạng thái: mới hướng dẫn, chưa xác nhận lưu biến hoặc .dockerignore. Chưa push/deploy; cần sửa mô tả Swagger/README về PostgreSQL và kiểm tra phạm vi commit trước khi triển khai.
+
+### 33 — Cập nhật tài liệu PostgreSQL trước deploy
+
+- Người thực hiện xác nhận đã thêm DATABASE_URL trên Render; không đọc giá trị secret hoặc xác minh kết nối Render trong bước này.
+- Đã đọc backend/.dockerignore và xác nhận .env/.env.* đã thêm.
+- File hướng dẫn sửa: backend/src/app.ts (mô tả PostgreSQL), backend/src/controllers.ts (POST bài học cần quản trị), README-SWAGGER.md (lưu trữ, trạng thái triển khai và kết quả 51 HTTP checks PostgreSQL local).
+- Mô tả phân biệt local đã chuyển PostgreSQL và Render vẫn chờ deploy; dữ liệu JSON tùy chỉnh chưa tự động được nhập vào Neon. Không cam kết giữ dữ liệu vĩnh viễn.
+- Trạng thái: mới hướng dẫn sửa tài liệu, chưa xác nhận file được lưu. Chưa commit/push code PostgreSQL.
+
+### 34 — Trực tiếp hoàn thiện Markdown và chuẩn bị commit PostgreSQL
+
+- Từ bước này người thực hiện yêu cầu mọi sửa đổi .md được trợ lý thực hiện trực tiếp.
+- Đã cập nhật README-SWAGGER.md: cách cấu hình env, migrate/seed trên máy mới, test bằng schema tạm, biến Render cần có và danh sách file PostgreSQL; sửa mô tả test JSON còn sót.
+- Đã xác nhận app.ts/controllers.ts có mô tả PostgreSQL và quyền quản trị mới.
+- Kiểm tra: Expo npm run typecheck đạt, git diff --check không lỗi nội dung; .env.local và backend/.env được git check-ignore xác nhận loại trừ. Backend đã đạt 51 HTTP checks ở bước 31, từ đó chỉ sửa tài liệu/mô tả Swagger.
+- Hướng dẫn stage danh sách file PostgreSQL/Neon và tài liệu cụ thể, bỏ qua marketing, wireframes và readiness; kiểm tra staged rồi commit/push để Render triển khai.
+- Trạng thái: chưa stage, commit, push hoặc xác nhận Render chạy PostgreSQL. Người thực hiện đã xác nhận thêm DATABASE_URL trên Render, chưa kiểm tra giá trị. Sau Live cần kiểm tra GET, CRUD có token và dữ liệu còn sau restart/deploy.

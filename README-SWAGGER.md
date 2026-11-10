@@ -101,11 +101,13 @@ Sau khi deploy Guard: GET công khai; POST, PATCH và DELETE cần token quản 
 
 ## 5. Chạy lại backend trên máy
 
-Mở terminal PowerShell riêng, không dừng terminal Expo:
+Mở terminal PowerShell riêng, không dừng terminal Expo. Cần có `backend/.env` với `DATABASE_URL` và `DATABASE_URL_UNPOOLED` từ Neon; lấy tên biến từ `.env.example`, không ghi giá trị thật vào Git. Trên máy mới, chạy hai script bên dưới để tạo bảng và nhập dữ liệu mẫu trước khi khởi động API.
 
 ```powershell
 cd 'D:\261\Mobile App\tu-vung-thuc-te\backend'
 npm ci
+node scripts/migrate.cjs
+node scripts/seed.cjs
 npm run build
 $env:ADMIN_API_KEY = node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))"
 npm start
@@ -135,9 +137,9 @@ cd 'D:\261\Mobile App\tu-vung-thuc-te\backend'
 npm test
 ```
 
-Bài kiểm thử dựng server trên cổng ngẫu nhiên, dùng thư mục dữ liệu tạm và kiểm tra Swagger cùng file JavaScript của Swagger, hai nhóm CRUD, lọc câu hỏi, lỗi 400/404/409, liên kết bài và câu, và dữ liệu sau khi khởi động lại. Test không ghi đè dữ liệu demo đang phục vụ.
+Bài kiểm thử cần mạng tới Neon. Helper tạo schema PostgreSQL ngẫu nhiên, nhập seed riêng, dựng server trên cổng ngẫu nhiên và kiểm tra Swagger, hai nhóm CRUD, quyền quản trị, validation, liên kết bài/câu và dữ liệu sau khi khởi động lại. Sau khi đóng ứng dụng, helper xóa schema test. Không đặt DATABASE_SCHEMA trong .env hoặc Render; bộ test tự quản lý biến này. Không chạy test với search_path trỏ tới bảng nội dung thật.
 
-Kết quả kiểm tra ngày 03/11/2026: backend build thành công; **36 kiểm tra HTTP đạt**, bài test persistence sau restart đạt; smoke test trên URL HTTPS công khai đạt, đã dọn dữ liệu thử; `npm audit --omit=dev` của backend không còn cảnh báo; `npm run typecheck` của app Expo đạt sau khi tách backend khỏi cấu hình TypeScript của app. Các kết quả này không khẳng định app Expo đã kết nối backend.
+Ngày 10/11/2026: bản PostgreSQL local build thành công và đạt 51 kiểm tra HTTP, gồm CRUD, validation, quyền quản trị và dữ liệu sau khi khởi động lại ứng dụng. Test dùng schema tạm riêng rồi dọn sau khi kết thúc. Render đã qua smoke test của bản trước; bản PostgreSQL vẫn cần deploy và kiểm tra public.
 
 Có thể thử trực tiếp URL công khai bằng:
 
@@ -147,7 +149,7 @@ node test/public-smoke.cjs https://interview-english.onrender.com
 
 Chỉ chạy script public sau khi deploy Guard. Trước khi chạy, đặt biến môi trường ADMIN_API_KEY trong terminal bằng đúng token đã cấu hình trên Render. Script kiểm tra GET công khai, chặn POST thiếu/sai token và thử CRUD bằng token đúng trên các bản ghi thử riêng, sau đó dọn dữ liệu thử. Không ghi token thật vào script hoặc GitHub.
 
-Backend lưu vào `backend/data/database.json`. Lần đầu chạy, nó khởi tạo từ `backend/seed.json`. Cùng một máy và cùng file dữ liệu thì restart vẫn giữ thay đổi. Đây là lưu file JSON cho một server demo, chưa phải cơ sở dữ liệu dùng cho nhiều instance. Có thể đổi vị trí bằng biến môi trường `DATA_FILE`.
+Bản backend mới đọc/ghi PostgreSQL qua DATABASE_URL. Schema nằm trong backend/sql/001-create-tables.sql; scripts/migrate.cjs tạo bảng và scripts/seed.cjs nhập dữ liệu mẫu, bỏ qua ID đã tồn tại. Các chỉnh sửa trong file JSON cũ không tự được chuyển sang PostgreSQL. Không đưa connection string vào Git hoặc app Expo.
 
 Đã tách thư mục backend khỏi kiểm tra TypeScript của Expo trong `tsconfig.json` để các decorator NestJS không làm lỗi app. Backend có `package.json` và `package-lock.json` riêng; cài thư viện backend trong thư mục `backend`, không cài ở thư mục Expo.
 
@@ -171,14 +173,14 @@ Service hiện tại đã deploy trên Render bằng Docker và có URL ở mụ
 | Health Check Path | `/health` |
 | Environment Variable | `NODE_VERSION=24.11.0` |
 
-5. Nhấn Deploy và đợi build thành công. Backend đã đọc cổng `PORT` do hosting cấp và lắng nghe trên `0.0.0.0`.
+5. Trước khi deploy, thêm `DATABASE_URL` (pooled connection string của Neon) và `ADMIN_API_KEY` vào Environment của service. Database phải được tạo bảng và nhập dữ liệu trước bằng các script ở mục 5. Không thêm DATABASE_SCHEMA của test. Nhấn Deploy và đợi build thành công; backend đọc cổng `PORT` do hosting cấp và lắng nghe trên `0.0.0.0`.
 6. Sao chép URL thật Render cấp, thêm `/docs`. Không tự đoán hostname từ ví dụ.
 7. Mở URL trên điện thoại bằng 4G hoặc cửa sổ trình duyệt riêng; thử GET, POST và DELETE trực tiếp trong Swagger như mục 4.
 8. Nộp URL `/docs` thật đã kiểm tra. Khi đó không cần để máy cá nhân bật.
 
 Nếu dùng Blueprint, file cấu hình nằm ở `backend/render.yaml`; cần chỉ đúng đường dẫn file Blueprint đó. Không phải chỉ có file cấu hình là đã deploy.
 
-Giới hạn Render Free theo tài liệu tại thời điểm soạn: có thể ngủ sau 15 phút không có request, lần mở lại có thể mất khoảng một phút. File cục bộ có thể mất khi deploy, restart hoặc ngủ; backend sẽ khởi tạo lại 3 bài và 9 câu từ seed. Nếu cần giữ thay đổi dài hạn, chuyển sang database hoặc hosting có ổ đĩa bền vững. URL được giữ theo service, nhưng khả năng hoạt động vẫn phụ thuộc tài khoản và giới hạn hosting.
+Backend Render có thể ngủ và cần thời gian khởi động lại. Sau khi triển khai bản PostgreSQL, dữ liệu nội dung nằm trên Neon, tách khỏi filesystem của Render; deploy backend không tự xóa hoặc seed lại database. Cần quản lý sao lưu và giới hạn tài khoản Neon riêng.
 
 ## 8. Cấu trúc mã nguồn và phần chưa làm
 
@@ -188,7 +190,12 @@ backend/
   src/app.ts             Module, ValidationPipe, Swagger
   src/controllers.ts     Hai nhóm API
   src/dto.ts             Schema request và response
-  src/store.ts           Xử lý dữ liệu và lưu JSON
+  src/postgres-store.ts  Đọc/ghi bài học và câu hỏi trong PostgreSQL
+  src/database.service.ts  Pool kết nối PostgreSQL
+  sql/001-create-tables.sql  Định nghĩa bảng và khóa ngoại
+  scripts/migrate.cjs    Chạy SQL tạo bảng
+  scripts/seed.cjs       Nhập dữ liệu mẫu, bỏ qua ID đã có
+  test/database-helper.cjs  Tạo và dọn schema PostgreSQL test
   seed.json              Dữ liệu 3 bài và 9 câu từ app
   test/api.test.cjs      Kiểm thử HTTP trên máy
   test/public-smoke.cjs  Kiểm thử URL công khai
@@ -197,7 +204,7 @@ backend/
   start-public.ps1       Mở tunnel khi backend đã chạy
 ```
 
-App Expo đã kết nối API đọc nội dung. Backend đã bổ sung Guard dùng Bearer token quản trị cho thao tác ghi và đã kiểm tra local; cần deploy rồi kiểm tra lại trên Render. Chưa có tài khoản người dùng, database production hoặc đồng bộ tiến độ. App Expo không chứa token quản trị.
+App Expo đã kết nối API đọc nội dung. Guard quản trị đã được kiểm tra trên Render. Bản PostgreSQL đã đạt kiểm thử local, đang chờ deploy và kiểm tra public. Chưa có tài khoản người dùng hoặc đồng bộ tiến độ; app Expo không chứa token quản trị hay mật khẩu database.
 
 ## 9. Tài liệu chính thức đã tham khảo
 
